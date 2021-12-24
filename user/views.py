@@ -35,6 +35,8 @@ def reg_view(request):
 
 def login_view(request):
     if request.method == 'GET':
+        if is_login(request):
+            return HttpResponse('已登陆')
         return render(request, 'user/login.html')
     elif request.method == 'POST':
         user_name = request.POST['user_name']
@@ -46,7 +48,12 @@ def login_view(request):
             if user_info.password == m.hexdigest():
                 request.session['user_name'] = user_name
                 request.session['uid'] = user_info.id
-                return HttpResponse('登陆成功')
+                resp = HttpResponse('登陆成功')
+                if 'remember' in request.POST:
+                    resp.set_cookie('user_name', user_name, 3600 * 24 * 3)
+                    resp.set_cookie('uid', user_info.id, 3600 * 24 * 3)
+                return resp
+
             else:
                 return HttpResponse('用户名或密码错误')
         except Exception as e:
@@ -54,3 +61,14 @@ def login_view(request):
             return HttpResponse('用户名或密码错误')
 
 
+def is_login(request):
+    if request.session.get('user_name') and request.session.get('uid'):
+        return True
+    c_user_name = request.COOKIES.get('user_name')
+    c_uid = request.COOKIES.get('uid')
+    if c_user_name and c_uid:
+        # 此方法可能会session劫持，cookies伪造等问题
+        request.session['user_name'] = c_user_name
+        request.session['uid'] = c_uid
+        return True
+    return False
