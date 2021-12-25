@@ -5,11 +5,28 @@
     <title>Index</title>
 </head>
 <body>
-<div>
-    <a href="/user/login">登陆</a>
-</div>
-<div>
-    <a href="/user/reg/">注册</a>
-</div>
+{% if request.COOKIES.user_name or request.session.user_name %}
+    <div>
+        欢迎：
+        {% if request.session.user_name %}
+            {{ request.session.user_name }}
+        {% else %}
+            {{ request.COOKIES.user_name }}
+        {% endif %}
+    </div>
+    <div>
+        <a href="/user/logout">退出登陆</a>
+    </div>
+    <div>
+        <a href="">进入我的笔记</a>
+    </div>
+{% else %}
+    <div>
+        <a href="/user/login">登陆</a>
+    </div>
+    <div>
+        <a href="/user/reg">注册</a>
+    </div>
+{% endif %}
 </body>
 </html>

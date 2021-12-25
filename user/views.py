@@ -1,6 +1,6 @@
 import hashlib
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
@@ -27,7 +27,7 @@ def reg_view(request):
             user = User.objects.create(user_name=user_name, password=password_m)
             request.session['user_name'] = user_name
             request.session['uid'] = user.id
-            return HttpResponse('注册成功')
+            return HttpResponseRedirect('/index')
         except Exception as e:
             print('--create user error %s' % e)
             return HttpResponse('用户名已注册')
@@ -36,7 +36,7 @@ def reg_view(request):
 def login_view(request):
     if request.method == 'GET':
         if is_login(request):
-            return HttpResponse('已登陆')
+            return HttpResponseRedirect('/index')
         return render(request, 'user/login.html')
     elif request.method == 'POST':
         user_name = request.POST['user_name']
@@ -48,7 +48,7 @@ def login_view(request):
             if user_info.password == m.hexdigest():
                 request.session['user_name'] = user_name
                 request.session['uid'] = user_info.id
-                resp = HttpResponse('登陆成功')
+                resp = HttpResponseRedirect('/index')
                 if 'remember' in request.POST:
                     resp.set_cookie('user_name', user_name, 3600 * 24 * 3)
                     resp.set_cookie('uid', user_info.id, 3600 * 24 * 3)
@@ -72,3 +72,16 @@ def is_login(request):
         request.session['uid'] = c_uid
         return True
     return False
+
+
+def logout_view(request):
+    if request.session.get('user_name'):
+        del request.session['user_name']
+    if request.session.get('uid'):
+        del request.session['uid']
+    resp = HttpResponseRedirect('/index')
+    if request.COOKIES.get('user_name'):
+        resp.delete_cookie('user_name')
+    if request.COOKIES.get('uid'):
+        resp.delete_cookie('uid')
+    return resp
