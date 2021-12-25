@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Note</title>
+</head>
+<body>
+<div>
+    <p>
+        {{ request.session.user_name }} 的笔记
+    </p>
+    <a href="/note/add/">添加新笔记</a>
+    <a href="/index/">返回首页</a>
+</div>
+<table>
+    <tr>
+        <th>标题</th>
+        <th>创建时间</th>
+        <th>修改时间</th>
+        <th>修改</th>
+        <th>删除</th>
+    </tr>
+    {% for note in notes %}
+        <tr>
+            <td>{{ note.title }}</td>
+            <td>{{ note.create_time }}</td>
+            <td>{{ note.update_time }}</td>
+            <td><a href="/note/update/{{ note.id }}">修改</a></td>
+            <td><a href="/note/delete?note_id={{ note.id }}">删除</a></td>
+        </tr>
+    {% endfor %}
+
+</table>
+</body>
+</html>
